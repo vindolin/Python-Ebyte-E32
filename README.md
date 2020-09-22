@@ -1,4 +1,4 @@
-# Python 3 library for controlling Ebyte LoRa modules like the E32.
+# Python 3 library for controlling Ebyte LoRa modules like the E32 with GPIOs (Raspberry Pi).
 
 Work in progress.
 
