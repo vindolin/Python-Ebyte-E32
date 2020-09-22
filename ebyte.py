@@ -1,5 +1,7 @@
 import serial
 from time import sleep
+from textwrap import dedent
+
 import RPi.GPIO as GPIO
 
 MODE_NORMAL, MODE_WAKEUP, MODE_POWERSAVE, MODE_SLEEP = range(4)
@@ -214,23 +216,33 @@ class Ebyte:
         self.set_mode(MODE_NORMAL)
 
     def show_parameters(self):
-        print()
-        return {
-            'addh': self.addh,
-            'addl': self.addl,
-            'address': self.address,
-            'chan': self.chan,
 
-            'parity_bit': self.uart_parity,
-            'uart_baud': self.uart_baud,
-            'air_data_rate': self.air_data_rate,
+        def format_value(name):
+            value = getattr(self, name)
+            return f'{self.BIT_LAYOUT[name]["doc"][value]} ({value})'
 
-            'transmission_mode': self.transmission_mode,
-            'io_drive_mode': self.io_drive_mode,
-            'wake_up_time': self.wake_up_time,
-            'fec_switch': self.fec_switch,
-            'transmission_power': self.transmission_power,
-        }
+        return dedent(f'''
+            Address:
+            --------
+                addh: {self.addh}
+                addl: {self.addl}
+             address: {self.address}
+                chan: {self.chan}
+
+            sped:
+            --------
+                parity_bit: {format_value('uart_parity')}
+                 uart_baud: {format_value('uart_baud')}
+             air_data_rate: {format_value('air_data_rate')}
+
+            option:
+            --------
+              transmission_mode: {format_value('transmission_mode')}
+                  io_drive_mode: {format_value('io_drive_mode')}
+                   wake_up_time: {format_value('wake_up_time')}
+                     fec_switch: {format_value('fec_switch')}
+             transmission_power: {format_value('transmission_power')}
+        ''')
 
     def read_parameters(self):
         self.set_mode(MODE_SLEEP)
