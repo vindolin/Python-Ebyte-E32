@@ -107,6 +107,7 @@ BIT_LAYOUT = {
     },
 }
 
+
 class Ebyte:
     def init_pins(self):
         raise NotImplementedError
@@ -256,11 +257,14 @@ class Ebyte:
 
             return self.show_parameters()
 
-        self.flush()
-
         self.set_mode(MODE_NORMAL)
 
     def write_parameters(self, permanent=False):
+        """Write the parameters to the module.
+        This function temporary sets the serial port to 9600, 8N1 before writing
+        and then restores the former settings after it's done.
+        """
+
         # save the current serial port settings
         old_baudrate = self._serial.baudrate
         old_parity = self._serial.parity
@@ -271,7 +275,7 @@ class Ebyte:
         self._serial.parity = serial.PARITY_NONE
         self._serial.stopbits = serial.STOPBITS_ONE
 
-        sleep(0.1)
+        sleep(0.1)  # necessary?
 
         self.set_mode(MODE_SLEEP)
 
@@ -279,8 +283,6 @@ class Ebyte:
 
         self._parameters[0] = PERMANENT if permanent else TEMPORARY
         self._serial.write(self._parameters)
-
-        # self.pin_wait_delay()
 
         self.wait_for_aux_pin()
 
