@@ -280,7 +280,7 @@ class Ebyte:
         self.set_mode(MODE_NORMAL)
 
 
-class EbyteRaspberry(Ebyte):
+class EbyteRaspberryPi(Ebyte):
     def init_pins(self):
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
