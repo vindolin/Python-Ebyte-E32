@@ -23,92 +23,91 @@ CMD_READ_PARAMETERS = b'\xc1\xc1\xc1'
 CMD_READ_VERSION = b'\xc3\xc3\xc3'
 CMD_RESET = b'\xc4\xc4\xc4'
 
+BYTE_HEAD, BYTE_ADDH, BYTE_ADDL, BYTE_SPED, BYTE_CHAN, BYTE_OPTION = range(6)
+
+BIT_LAYOUT = {
+    'addh': {
+        'byte': BYTE_ADDH,
+        'default': 0x00,
+        'max': 0xFF,
+    },
+    'addl': {
+        'byte': BYTE_ADDL,
+        'default': 0x00,
+        'max': 0xFF,
+    },
+    'uart_parity': {
+        'byte': BYTE_SPED,
+        'pos': 6,
+        'bits': 2,
+        'default': 0b00,
+        'max': 0b11,
+        'doc': ['8N1', '8O1', '8E1', '8N1'],
+    },
+    'uart_baud': {
+        'byte': BYTE_SPED,
+        'pos': 3,
+        'bits': 3,
+        'default': 0b011,
+        'max': 0b111,
+        'doc': ['1200', '2400', '9600', '19200', '38400', '57600', '115200'],
+    },
+    'air_data_rate': {
+        'byte': BYTE_SPED,
+        'pos': 0,
+        'bits': 3,
+        'default': 0b010,
+        'max': 0b111,
+        'doc': ['0.3k', '1.2k', '2.4k', '4.8k', '9.6k', '19.2k', '19.2k', '19.2k'],
+    },
+    'chan': {
+        'byte': BYTE_CHAN,
+        'default': 0x17,
+        'max': 0x1f,
+    },
+    'transmission_mode': {
+        'byte': BYTE_OPTION,
+        'pos': 7,
+        'bits': 1,
+        'default': 0b0,
+        'max': 0b1,
+        'doc': ['transparent', 'fixed'],
+    },
+    'io_drive_mode': {
+        'byte': BYTE_OPTION,
+        'pos': 6,
+        'bits': 1,
+        'default': 0b1,
+        'max': 0b1,
+        'doc': ['TXD and AUX push-pull, RXD pull-up', 'TXD, RXD and AUX open-collector'],
+    },
+    'wake_up_time': {
+        'byte': BYTE_OPTION,
+        'pos': 3,
+        'bits': 3,
+        'default': 0b000,
+        'max': 0b010,
+        'doc': ['250ms', '500ms', '750ms', '1000ms', '1250ms', '1500ms', '1750ms', '2000ms'],
+    },
+    'fec_switch': {
+        'byte': BYTE_OPTION,
+        'pos': 2,
+        'bits': 1,
+        'default': 0b1,
+        'max': 0b1,
+        'doc': ['off', 'on'],
+    },
+    'transmission_power': {
+        'byte': BYTE_OPTION,
+        'pos': 0,
+        'bits': 2,
+        'default': 0b00,
+        'max': 0b11,
+        'doc': ['30dBm', '27dBm', '24dBm', '21dBm'],
+    },
+}
 
 class Ebyte:
-    BYTE_HEAD, BYTE_ADDH, BYTE_ADDL, BYTE_SPED, BYTE_CHAN, BYTE_OPTION = range(6)
-
-    BIT_LAYOUT = {
-        'addh': {
-            'byte': BYTE_ADDH,
-            'default': 0x00,
-            'max': 0xFF,
-        },
-        'addl': {
-            'byte': BYTE_ADDL,
-            'default': 0x00,
-            'max': 0xFF,
-        },
-        'uart_parity': {
-            'byte': BYTE_SPED,
-            'pos': 6,
-            'bits': 2,
-            'default': 0b00,
-            'max': 0b11,
-            'doc': ['8N1', '8O1', '8E1', '8N1'],
-        },
-        'uart_baud': {
-            'byte': BYTE_SPED,
-            'pos': 3,
-            'bits': 3,
-            'default': 0b011,
-            'max': 0b111,
-            'doc': ['1200', '2400', '9600', '19200', '38400', '57600', '115200'],
-        },
-        'air_data_rate': {
-            'byte': BYTE_SPED,
-            'pos': 0,
-            'bits': 3,
-            'default': 0b010,
-            'max': 0b111,
-            'doc': ['0.3k', '1.2k', '2.4k', '4.8k', '9.6k', '19.2k', '19.2k', '19.2k'],
-        },
-        'chan': {
-            'byte': BYTE_CHAN,
-            'default': 0x17,
-            'max': 0x1f,
-        },
-        'transmission_mode': {
-            'byte': BYTE_OPTION,
-            'pos': 7,
-            'bits': 1,
-            'default': 0b0,
-            'max': 0b1,
-            'doc': ['transparent', 'fixed'],
-        },
-        'io_drive_mode': {
-            'byte': BYTE_OPTION,
-            'pos': 6,
-            'bits': 1,
-            'default': 0b1,
-            'max': 0b1,
-            'doc': ['TXD and AUX push-pull, RXD pull-up', 'TXD, RXD and AUX open-collector'],
-        },
-        'wake_up_time': {
-            'byte': BYTE_OPTION,
-            'pos': 3,
-            'bits': 3,
-            'default': 0b000,
-            'max': 0b010,
-            'doc': ['250ms', '500ms', '750ms', '1000ms', '1250ms', '1500ms', '1750ms', '2000ms'],
-        },
-        'fec_switch': {
-            'byte': BYTE_OPTION,
-            'pos': 2,
-            'bits': 1,
-            'default': 0b1,
-            'max': 0b1,
-            'doc': ['off', 'on'],
-        },
-        'transmission_power': {
-            'byte': BYTE_OPTION,
-            'pos': 0,
-            'bits': 2,
-            'default': 0b00,
-            'max': 0b11,
-            'doc': ['30dBm', '27dBm', '24dBm', '21dBm'],
-        },
-    }
-
     def init_pins(self):
         raise NotImplementedError
 
@@ -147,7 +146,7 @@ class Ebyte:
             return self.addh << 8 | self.addl
         else:
             try:
-                layout = self.BIT_LAYOUT[name]
+                layout = BIT_LAYOUT[name]
 
                 # bitmask
                 if 'bits' in layout:
@@ -172,7 +171,7 @@ class Ebyte:
             self.addl = value & 0xff
         else:
             try:
-                layout = self.BIT_LAYOUT[name]
+                layout = BIT_LAYOUT[name]
 
                 if value > layout['max']:
                     raise UserWarning(f'value ({value}) for {name} must be <= {layout["max"]}')
@@ -219,7 +218,7 @@ class Ebyte:
 
         def format_value(name):
             value = getattr(self, name)
-            return f'{self.BIT_LAYOUT[name]["doc"][value]} ({value})'
+            return f'{BIT_LAYOUT[name]["doc"][value]} ({value})'
 
         return dedent(f'''
             Address:
