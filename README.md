@@ -1,1 +1,3 @@
-# python_ebyte_lora
+# Python 3 library to control Ebyte LoRa modules like the E32.
+
+Work in progress.
