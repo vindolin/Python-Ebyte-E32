@@ -1,6 +1,5 @@
 import serial
 from ebyte import EbyteRaspberryPi
-from time import sleep
 
 PIN_M0 = 27
 PIN_M1 = 17
@@ -14,7 +13,7 @@ print(ebyte.read_version_number())
 print(ebyte.read_parameters())
 
 ebyte.transmission_mode = 1
-ebyte.address = 3
+ebyte.address = 2
 ebyte.chan = 2
 
 print(ebyte.transmission_mode)
