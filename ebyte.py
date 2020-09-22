@@ -13,13 +13,16 @@ FREQUENCIES = {
 }
 
 DEFAULT_PARAMETERS = bytearray(b'\xc0\x00\x00\x1a\x17\x44')
-# PERMANENT = 0xc0
-PERMANENT = 0xc2
+
+PERMANENT = 0xc0
 TEMPORARY = 0xc2
+
+CMD_READ_PARAMETERS = b'\xc1\xc1\xc1'
+CMD_READ_VERSION = b'\xc3\xc3\xc3'
+CMD_RESET = b'\xc4\xc4\xc4'
 
 
 class Ebyte:
-
     BYTE_HEAD, BYTE_ADDH, BYTE_ADDL, BYTE_SPED, BYTE_CHAN, BYTE_OPTION = range(6)
 
     BIT_LAYOUT = {
@@ -107,10 +110,13 @@ class Ebyte:
     def init_pins(self):
         raise NotImplementedError
 
-    def pin_set_delay(self):
+    def pin_wait_delay(self):
         raise NotImplementedError
 
     def set_mode(self, mode):
+        raise NotImplementedError
+
+    def wait_for_aux_pin(self):
         raise NotImplementedError
 
     def __init__(self, serial, pin_m0, pin_m1, pin_aux):
@@ -182,36 +188,33 @@ class Ebyte:
                 else:
                     self._parameters[layout['byte']] = value
 
-            except KeyError:
-                raise
+            except KeyError as err:
+                raise UserWarning(f'not a valid property: {err}')
 
     def flush(self):
         self._serial.reset_input_buffer()
-        # while self._serial.in_waiting:
-        #     self.read(1)
 
     def read_version_number(self):
         self.set_mode(MODE_SLEEP)
 
-        self._serial.write(b'\xc3\xc3\xc3')
+        self._serial.write(CMD_READ_VERSION)
 
-        self.pin_set_delay()
+        self.pin_wait_delay()
 
         while self._serial.inWaiting():
 
             head, freq, version, features = self._serial.read(4)
 
             return {
-                'freq': FREQUENCIES[freq],
+                'freq': f'{FREQUENCIES[freq]}MHz',
                 'version': version,
                 'features': features,
             }
 
-        self.flush()
-
         self.set_mode(MODE_NORMAL)
 
-    def get_parameters(self):
+    def show_parameters(self):
+        print()
         return {
             'addh': self.addh,
             'addl': self.addl,
@@ -232,15 +235,15 @@ class Ebyte:
     def read_parameters(self):
         self.set_mode(MODE_SLEEP)
 
-        self._serial.write(b'\xc1\xc1\xc1')
+        self._serial.write(CMD_READ_PARAMETERS)
 
-        self.pin_set_delay()
+        self.pin_wait_delay()
 
         while self._serial.inWaiting():
 
             self._parameters = bytearray(self._serial.read(6))
 
-            return self.get_parameters()
+            return self.show_parameters()
 
         self.flush()
 
@@ -266,11 +269,9 @@ class Ebyte:
         self._parameters[0] = PERMANENT if permanent else TEMPORARY
         self._serial.write(self._parameters)
 
-        print(self._serial.read(6))
+        # self.pin_wait_delay()
 
-        self.pin_set_delay()
-
-        self.flush()
+        self.wait_for_aux_pin()
 
         # restore serial settings
         self._serial.baudrate = old_baudrate
@@ -287,8 +288,9 @@ class EbyteRaspberryPi(Ebyte):
 
         GPIO.setup([self._pin_m0, self._pin_m1], GPIO.OUT)
         GPIO.output([self._pin_m0, self._pin_m1], GPIO.LOW)
+        GPIO.setup(self._pin_aux, GPIO.IN)
 
-    def pin_set_delay(self):
+    def pin_wait_delay(self):
         sleep(0.04)
 
     def set_mode(self, mode):
@@ -308,4 +310,11 @@ class EbyteRaspberryPi(Ebyte):
             GPIO.output(self._pin_m0, GPIO.HIGH)
             GPIO.output(self._pin_m1, GPIO.HIGH)
 
-        self.pin_set_delay()
+        self.pin_wait_delay()
+
+    def wait_for_aux_pin(self):
+        if self._pin_aux:
+            while not GPIO.input(self._pin_aux):
+                pass
+        else:
+            self.pin_wait_delay()

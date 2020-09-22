@@ -4,4 +4,4 @@ Work in progress.
 
 It's fully working on an Raspberry PI.
 
-See the test_raspberrypi.py
+See the code in test_raspberrypi.py for instructions.
