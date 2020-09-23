@@ -40,7 +40,10 @@ print(ebyte.read_parameters())
 ```
 
 ```
-{'freq': '868MHz', 'version': 13, 'features': 20}
+Frequency: 868MHz
+  Version: 13
+ Features: 20
+
 
 Address:
 --------
