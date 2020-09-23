@@ -207,11 +207,11 @@ class Ebyte:
 
             head, freq, version, features = self._serial.read(4)
 
-            return {
-                'freq': f'{FREQUENCIES[freq]}MHz',
-                'version': version,
-                'features': features,
-            }
+            return dedent(f'''
+                Frequency: {FREQUENCIES[freq]}MHz
+                  Version: {version}
+                 Features: {features}
+            ''')
 
         self.set_mode(MODE_NORMAL)
 
@@ -230,13 +230,13 @@ class Ebyte:
                 chan: {self.chan}
 
             sped:
-            --------
+            -----
                 parity_bit: {format_value('uart_parity')}
                  uart_baud: {format_value('uart_baud')}
              air_data_rate: {format_value('air_data_rate')}
 
             option:
-            --------
+            -------
               transmission_mode: {format_value('transmission_mode')}
                   io_drive_mode: {format_value('io_drive_mode')}
                    wake_up_time: {format_value('wake_up_time')}
