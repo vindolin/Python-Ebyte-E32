@@ -40,26 +40,27 @@ print(ebyte.read_parameters())
 ```
 
 ```
+Version:
+--------
 Frequency: 868MHz
   Version: 13
  Features: 20
 
-
-Address:
---------
+Address/channel:
+----------------
     addh: 0
     addl: 2
  address: 2
     chan: 2
 
 sped:
---------
+-----
     parity_bit: 8N1 (0)
      uart_baud: 19200 (3)
  air_data_rate: 2.4k (2)
 
 option:
---------
+-------
   transmission_mode: fixed (1)
       io_drive_mode: TXD, RXD and AUX open-collector (1)
        wake_up_time: 250ms (0)
@@ -70,21 +71,27 @@ option:
 2
 2
 
-Address:
+Version:
 --------
+Frequency: 868MHz
+  Version: 13
+ Features: 20
+
+Address/channel:
+----------------
     addh: 0
     addl: 2
  address: 2
     chan: 2
 
 sped:
---------
+-----
     parity_bit: 8N1 (0)
      uart_baud: 19200 (3)
  air_data_rate: 2.4k (2)
 
 option:
---------
+-------
   transmission_mode: fixed (1)
       io_drive_mode: TXD, RXD and AUX open-collector (1)
        wake_up_time: 250ms (0)
