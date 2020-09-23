@@ -9,7 +9,6 @@ ser = serial.Serial('/dev/serial0')
 
 ebyte = EbyteRaspberryPi(ser, PIN_M0, PIN_M1, PIN_AUX)
 
-print(ebyte.read_version_number())
 print(ebyte.read_parameters())
 
 ebyte.transmission_mode = 1

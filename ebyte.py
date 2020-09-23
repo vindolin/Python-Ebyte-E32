@@ -130,6 +130,9 @@ class Ebyte:
         self._parameters = DEFAULT_PARAMETERS
 
         self.init_pins()
+
+        self._version_data = self.read_version_number()
+
         self.set_mode(MODE_NORMAL)
 
     def get_bit(self, byte, position, length):
@@ -207,23 +210,30 @@ class Ebyte:
 
             head, freq, version, features = self._serial.read(4)
 
-            return dedent(f'''
-                Frequency: {FREQUENCIES[freq]}MHz
-                  Version: {version}
-                 Features: {features}
-            ''')
+            return {
+                'freq': freq,
+                'version': version,
+                'features': features,
+            }
 
         self.set_mode(MODE_NORMAL)
 
     def show_parameters(self):
-
         def format_value(name):
             value = getattr(self, name)
             return f'{BIT_LAYOUT[name]["doc"][value]} ({value})'
 
+        frequency = FREQUENCIES[self._version_data['freq']]
+
         return dedent(f'''
-            Address:
+            Version:
             --------
+            Frequency: {frequency}MHz
+              Version: {self._version_data['version']}
+             Features: {self._version_data['features']}
+
+            Address/channel:
+            ----------------
                 addh: {self.addh}
                 addl: {self.addl}
              address: {self.address}
