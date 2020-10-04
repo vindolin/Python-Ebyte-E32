@@ -1,14 +1,8 @@
-# Python 3 library for controlling Ebyte LoRa modules like the E32 with GPIOs (Raspberry Pi).
+# Python 3 command line tool/library for controlling Ebyte LoRa modules like the E32 with GPIOs (Raspberry Pi).
 
 Work in progress.
 
 Parameter setting is fully working on an Raspberry PI.
-
-See the code in test_raspberrypi.py for instructions.
-
-If you write to the serial device, just call ebyte.wait_for_aux_pin() after every write.
-
-You can omit the AUX_PIN parameter, a delay is then used instead of waiting for the pin to go high.
 
 ## reading
 
@@ -51,3 +45,9 @@ option:
 ### factory reset
 
 ```python ebyte.py reset /dev/serial0 27 17 22```
+
+### use as library
+
+See the code in test_raspberrypi.py if you want to use the library in your own code.
+If you write to the serial device, just call ebyte.wait_for_aux_pin() after every write.
+You can omit the AUX_PIN parameter, a delay is then used instead of waiting for the pin to go high.
