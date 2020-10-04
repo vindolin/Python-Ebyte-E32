@@ -13,8 +13,7 @@ ebyte = EbyteRaspberryPi(ser, PIN_M0, PIN_M1, PIN_AUX)
 unpacker = msgpack.Unpacker()
 
 while True:
-    buf = ser.read(1)
-    unpacker.feed(buf)
+    unpacker.feed(ser.read(1))
     for obj_ in unpacker:
         if obj_:
             print(obj_)
