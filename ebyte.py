@@ -354,15 +354,21 @@ if __name__ == '__main__':
     parser_read.add_argument('pin_m0', type=int, help='M0 GPIO pin number.')
     parser_read.add_argument('pin_m1', type=int, help='M1 GPIO pin number.')
     parser_read.add_argument('pin_aux', type=int, default=None, help='AUX GPIO pin number.')
-    parser_read.add_argument('chan', help='The channel to use.')
 
     parser_write = subparsers.add_parser('write', help='Write parameters to module.')
     parser_write.add_argument('serial', help='Path to the serial port device.')
     parser_write.add_argument('pin_m0', type=int, help='M0 GPIO pin number.')
     parser_write.add_argument('pin_m1', type=int, help='M1 GPIO pin number.')
     parser_write.add_argument('pin_aux', type=int, default=None, help='AUX GPIO pin number.')
+
     parser_write.add_argument('--permanent', type=bool, default=False, help='Write parameters so they are restored after a powerdown.')
     parser_write.add_argument('--address', type=int, default=None, help='Module address 0x0000 to 0xFFFF.')
+
+    parser_reset = subparsers.add_parser('reset', help='Factory reset the module.')
+    parser_reset.add_argument('serial', help='Path to the serial port device.')
+    parser_reset.add_argument('pin_m0', type=int, help='M0 GPIO pin number.')
+    parser_reset.add_argument('pin_m1', type=int, help='M1 GPIO pin number.')
+    parser_reset.add_argument('pin_aux', type=int, default=None, help='AUX GPIO pin number.')
 
     for parameter_name, parameter_data in BIT_LAYOUT.items():
         if parameter_name not in ['addh', 'addl']:
@@ -383,4 +389,19 @@ if __name__ == '__main__':
                     setattr(ebyte, arg, getattr(args, arg))
 
         ebyte.write_parameters(args.permanent)
+        print(ebyte.read_parameters())
+
+    elif args.command == 'reset':
+        ebyte.address = 0x0000
+        ebyte.uart_parity = 0
+        ebyte.uart_baud = 0b010
+        ebyte.air_data_rate = 0b010
+        ebyte.chan = 0x06
+        ebyte.transmission_mode = 0b0
+        ebyte.io_drive_mode = 0b1
+        ebyte.wake_up_time = 0b000
+        ebyte.fec_switch = 0b1
+        ebyte.transmission_power = 0b00
+
+        ebyte.write_parameters(True)
         print(ebyte.read_parameters())

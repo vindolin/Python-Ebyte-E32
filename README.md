@@ -10,34 +10,10 @@ If you write to the serial device, just call ebyte.wait_for_aux_pin() after ever
 
 You can omit the AUX_PIN parameter, a delay is then used instead of waiting for the pin to go high.
 
+## reading
 
-```python
-import serial
-from ebyte import EbyteRaspberryPi
+```python ebyte.py read /dev/serial0 27 17 22```
 
-PIN_M0 = 27
-PIN_M1 = 17
-PIN_AUX = 22
-
-ser = serial.Serial('/dev/serial0')
-
-ebyte = EbyteRaspberryPi(ser, PIN_M0, PIN_M1, PIN_AUX)
-
-print(ebyte.read_version_number())
-print(ebyte.read_parameters())
-
-ebyte.transmission_mode = 1
-ebyte.address = 2
-ebyte.chan = 2
-
-print(ebyte.transmission_mode)
-print(ebyte.chan)
-print(ebyte.address)
-
-ebyte.write_parameters()
-
-print(ebyte.read_parameters())
-```
 
 ```
 Version:
@@ -48,10 +24,10 @@ Frequency: 868MHz
 
 Address/channel:
 ----------------
-    addh: 0
-    addl: 2
- address: 2
-    chan: 2
+    addh: 0x00
+    addl: 0x02
+ address: 0x0002
+    chan: 0x02
 
 sped:
 -----
@@ -66,35 +42,12 @@ option:
        wake_up_time: 250ms (0)
          fec_switch: on (1)
  transmission_power: 30dBm (0)
+ ```
 
-1
-2
-2
+### writing
 
-Version:
---------
-Frequency: 868MHz
-  Version: 13
- Features: 20
+```python ebyte.py write /dev/serial0 27 17 22 --fec_switch=1 --chan=15```
 
-Address/channel:
-----------------
-    addh: 0
-    addl: 2
- address: 2
-    chan: 2
+### factory reset
 
-sped:
------
-    parity_bit: 8N1 (0)
-     uart_baud: 19200 (3)
- air_data_rate: 2.4k (2)
-
-option:
--------
-  transmission_mode: fixed (1)
-      io_drive_mode: TXD, RXD and AUX open-collector (1)
-       wake_up_time: 250ms (0)
-         fec_switch: on (1)
- transmission_power: 30dBm (0)
-```
+```python ebyte.py reset /dev/serial0 27 17 22```

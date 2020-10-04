@@ -19,6 +19,6 @@ print(ebyte.transmission_mode)
 print(ebyte.chan)
 print(ebyte.address)
 
-ebyte.write_parameters()
+ebyte.write_parameters(True)
 
 print(ebyte.read_parameters())
