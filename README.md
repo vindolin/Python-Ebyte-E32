@@ -2,8 +2,22 @@
 
 ## reading
 
-```python ebyte.py read /dev/serial0 27 17 22```
+```bash
+usage: ebyte.py read [-h] serial pin_m0 pin_m1 pin_aux
 
+positional arguments:
+  serial      Path to the serial port device.
+  pin_m0      M0 GPIO pin number.
+  pin_m1      M1 GPIO pin number.
+  pin_aux     AUX GPIO pin number.
+
+optional arguments:
+  -h, --help  show this help message and exit
+
+
+python ebyte.py read /dev/serial0 27 17 22
+
+```
 
 ```
 Version:
