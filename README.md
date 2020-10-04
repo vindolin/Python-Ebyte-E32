@@ -1,7 +1,5 @@
 # Python 3 command line tool/library for controlling Ebyte LoRa modules like the E32 with GPIOs (Raspberry Pi).
 
-Work in progress.
-
 Parameter setting is fully working on an Raspberry PI.
 
 ## reading
