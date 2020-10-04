@@ -355,7 +355,7 @@ if __name__ == '__main__':
     parser_read.add_argument('pin_m1', type=int, help='M1 GPIO pin number.')
     parser_read.add_argument('pin_aux', type=int, default=None, help='AUX GPIO pin number.')
 
-    parser_write = subparsers.add_parser('write', help='Write parameters to module.')
+    parser_write = subparsers.add_parser('write', help='Write parameters to module, see manual for valid values.')
     parser_write.add_argument('serial', help='Path to the serial port device.')
     parser_write.add_argument('pin_m0', type=int, help='M0 GPIO pin number.')
     parser_write.add_argument('pin_m1', type=int, help='M1 GPIO pin number.')
@@ -372,7 +372,7 @@ if __name__ == '__main__':
 
     for parameter_name, parameter_data in BIT_LAYOUT.items():
         if parameter_name not in ['addh', 'addl']:
-            parser_write.add_argument(f'--{parameter_name}', type=int, help='TODO, see manual.', default=None)
+            parser_write.add_argument(f'--{parameter_name}', type=int, default=None)
 
     args = parser.parse_args()
 
