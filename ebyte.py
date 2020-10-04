@@ -47,9 +47,9 @@ BIT_LAYOUT = {
         'byte': BYTE_SPED,
         'pos': 3,
         'bits': 3,
-        'default': 0b010,
+        'default': 0b011,
         'max': 0b111,
-        'doc': ['1200', '2400', '9600', '19200', '38400', '57600', '115200'],
+        'doc': ['1200', '2400', '4800', '9600', '19200', '38400', '57600', '115200'],
     },
     'air_data_rate': {
         'byte': BYTE_SPED,
@@ -394,7 +394,7 @@ if __name__ == '__main__':
     elif args.command == 'reset':
         ebyte.address = 0x0000
         ebyte.uart_parity = 0
-        ebyte.uart_baud = 0b010
+        ebyte.uart_baud = 0b011
         ebyte.air_data_rate = 0b010
         ebyte.chan = 0x06
         ebyte.transmission_mode = 0b0
