@@ -1,7 +1,6 @@
 import serial
 from time import sleep
 from textwrap import dedent
-
 import RPi.GPIO as GPIO
 
 MODE_NORMAL, MODE_WAKEUP, MODE_POWERSAVE, MODE_SLEEP = range(4)
@@ -48,7 +47,7 @@ BIT_LAYOUT = {
         'byte': BYTE_SPED,
         'pos': 3,
         'bits': 3,
-        'default': 0b011,
+        'default': 0b010,
         'max': 0b111,
         'doc': ['1200', '2400', '9600', '19200', '38400', '57600', '115200'],
     },
@@ -62,7 +61,7 @@ BIT_LAYOUT = {
     },
     'chan': {
         'byte': BYTE_CHAN,
-        'default': 0x17,
+        'default': 0x06,
         'max': 0x1f,
     },
     'transmission_mode': {
@@ -234,10 +233,10 @@ class Ebyte:
 
             Address/channel:
             ----------------
-                addh: {self.addh}
-                addl: {self.addl}
-             address: {self.address}
-                chan: {self.chan}
+                addh: 0x{self.addh:02x}
+                addl: 0x{self.addl:02x}
+             address: 0x{self.address:04x}
+                chan: 0x{self.chan:02x}
 
             sped:
             -----
@@ -341,3 +340,47 @@ class EbyteRaspberryPi(Ebyte):
                 pass
         else:
             self.pin_wait_delay()
+
+
+if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser(description='Configure an Ebyte E32 like LoRa module connected to the GPIO pin header on a Raspberry Pi.')
+
+    subparsers = parser.add_subparsers(dest='command')
+
+    parser_read = subparsers.add_parser('read', help='Read the configuration parameters.')
+
+    parser_read.add_argument('serial', help='Path to the serial port device.')
+    parser_read.add_argument('pin_m0', type=int, help='M0 GPIO pin number.')
+    parser_read.add_argument('pin_m1', type=int, help='M1 GPIO pin number.')
+    parser_read.add_argument('pin_aux', type=int, default=None, help='AUX GPIO pin number.')
+    parser_read.add_argument('chan', help='The channel to use.')
+
+    parser_write = subparsers.add_parser('write', help='Write parameters to module.')
+    parser_write.add_argument('serial', help='Path to the serial port device.')
+    parser_write.add_argument('pin_m0', type=int, help='M0 GPIO pin number.')
+    parser_write.add_argument('pin_m1', type=int, help='M1 GPIO pin number.')
+    parser_write.add_argument('pin_aux', type=int, default=None, help='AUX GPIO pin number.')
+    parser_write.add_argument('--permanent', type=bool, default=False, help='Write parameters so they are restored after a powerdown.')
+    parser_write.add_argument('--address', type=int, default=None, help='Module address 0x0000 to 0xFFFF.')
+
+    for parameter_name, parameter_data in BIT_LAYOUT.items():
+        if parameter_name not in ['addh', 'addl']:
+            parser_write.add_argument(f'--{parameter_name}', type=int, help='TODO, see manual.', default=None)
+
+    args = parser.parse_args()
+
+    ser = serial.Serial(args.serial)
+    ebyte = EbyteRaspberryPi(ser, args.pin_m0, args.pin_m1, args.pin_aux)
+
+    if args.command == 'read':
+        print(ebyte.read_parameters())
+
+    elif args.command == 'write':
+        for arg in vars(args):
+            if getattr(args, arg) is not None:
+                if arg in BIT_LAYOUT or arg == 'address':
+                    setattr(ebyte, arg, getattr(args, arg))
+
+        ebyte.write_parameters(args.permanent)
+        print(ebyte.read_parameters())
