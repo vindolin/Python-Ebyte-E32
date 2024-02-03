@@ -1,7 +1,9 @@
 import serial
 from time import sleep
 from textwrap import dedent
-import RPi.GPIO as GPIO
+import gpiozero
+
+__all__ = ('Ebyte', 'EbyteRaspberryPi')
 
 MODE_NORMAL, MODE_WAKEUP, MODE_POWERSAVE, MODE_SLEEP = range(4)
 
@@ -108,8 +110,8 @@ BIT_LAYOUT = {
 
 
 class Ebyte:
-    def init_pins(self):
-        raise NotImplementedError
+    # def init_pins(self):
+    #     raise NotImplementedError
 
     def pin_wait_delay(self):
         raise NotImplementedError
@@ -122,13 +124,11 @@ class Ebyte:
 
     def __init__(self, serial, pin_m0, pin_m1, pin_aux):
         self._serial = serial
-        self._pin_m0 = pin_m0
-        self._pin_m1 = pin_m1
-        self._pin_aux = pin_aux
+        self._pin_m0 = gpiozero.DigitalOutputDevice(pin_m0)
+        self._pin_m1 = gpiozero.DigitalOutputDevice(pin_m1)
+        self._pin_aux = gpiozero.DigitalInputDevice(pin_aux)
 
         self._parameters = DEFAULT_PARAMETERS
-
-        self.init_pins()
 
         self._version_data = self.read_version_number()
 
@@ -139,10 +139,7 @@ class Ebyte:
 
     def set_bit(self, byte, position, length, value):
         mask = (1 << length) - 1
-        return (
-            byte & ~(mask << position)
-            | ((value & mask) << position)
-        )
+        return (byte & ~(mask << position) | ((value & mask) << position))
 
     def __getattr__(self, name):
         if name == 'address':
@@ -304,39 +301,31 @@ class Ebyte:
 
 
 class EbyteRaspberryPi(Ebyte):
-    def init_pins(self):
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setwarnings(False)
-
-        GPIO.setup([self._pin_m0, self._pin_m1], GPIO.OUT)
-        GPIO.output([self._pin_m0, self._pin_m1], GPIO.LOW)
-        GPIO.setup(self._pin_aux, GPIO.IN)
-
     def pin_wait_delay(self):
         sleep(0.04)
 
     def set_mode(self, mode):
         if mode == MODE_NORMAL:
-            GPIO.output(self._pin_m0, GPIO.LOW)
-            GPIO.output(self._pin_m1, GPIO.LOW)
+            self._pin_m0.off()
+            self._pin_m1.off()
 
         if mode == MODE_WAKEUP:
-            GPIO.output(self._pin_m0, GPIO.HIGH)
-            GPIO.output(self._pin_m1, GPIO.LOW)
+            self._pin_m0.on()
+            self._pin_m1.off()
 
         if mode == MODE_POWERSAVE:
-            GPIO.output(self._pin_m0, GPIO.LOW)
-            GPIO.output(self._pin_m1, GPIO.HIGH)
+            self._pin_m0.off()
+            self._pin_m1.on()
 
         if mode == MODE_SLEEP:
-            GPIO.output(self._pin_m0, GPIO.HIGH)
-            GPIO.output(self._pin_m1, GPIO.HIGH)
+            self._pin_m0.on()
+            self._pin_m1.on()
 
         self.pin_wait_delay()
 
     def wait_for_aux_pin(self):
         if self._pin_aux:
-            while not GPIO.input(self._pin_aux):
+            while not self._pin_aux.value:
                 pass
         else:
             self.pin_wait_delay()
